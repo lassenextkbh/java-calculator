@@ -21,10 +21,10 @@ public class Calculator {
         "7", "8", "9", "×",
         "4", "5", "6", "-",
         "1", "2", "3", "+" ,
-        "0", ".", "√", "="
+        "0", ".", "√", "=",
     };
-    String[] rightSymbols = {"÷","×", "-", "+", "="}
-    String[] topSymbols = {"AC", "+/-", "%"}
+    String[] rightSymbols = {"÷","×", "-", "+", "="};
+    String[] topSymbols = {"AC", "+/-", "%"};
 
     // Declare window and components
     JFrame frame = new JFrame("Calculator");
@@ -41,7 +41,7 @@ public class Calculator {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close when the window "close" button is pressed
         frame.setLayout(new BorderLayout()); // Set up layout for the window
 
-        // Styling for label
+        // Styling for displayLabel
         displayLabel.setBackground(customBlack);
         displayLabel.setForeground(Color.white); // Text color: white
         displayLabel.setFont(new Font("Arial", Font.PLAIN, 80));
@@ -49,10 +49,27 @@ public class Calculator {
         displayLabel.setText("0");
         displayLabel.setOpaque(true);
 
-        // Styling for panel
+        // Styling for displayPanel
         displayPanel.setLayout(new BorderLayout()); // Set up the layout of the panel
         displayPanel.add(displayLabel); // Put the text label inside the panel
 
         frame.add(displayPanel, BorderLayout.NORTH); // Put the panel inside the window (aligned to north/top)
+
+        // Styling for buttonsPanel
+        buttonsPanel.setLayout(new GridLayout(5, 4)); // Set the layout of the panels for the buttons to have 5 rows and 4 cols
+        buttonsPanel.setBackground(customBlack);
+        frame.add(buttonsPanel); // Add the buttonsPanel to the window
+
+        // Adding all the buttons to the buttonsPanel
+        for (int i = 0; i < buttonValues.length; i++) {
+            // Declare button and the value
+            JButton button = new JButton();
+            String buttonValue = buttonValues[i];
+            // Stylize button
+            button.setFont(new Font("Arial", Font.PLAIN, 30));
+            button.setText(buttonValue);
+            // Add button to buttonsPanel
+            buttonsPanel.add(button);
+        }
     }
 }
