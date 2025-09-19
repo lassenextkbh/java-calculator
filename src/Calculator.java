@@ -17,14 +17,14 @@ public class Calculator {
 
     // Declare the values for all the buttons
     String[] buttonValues = {
-        "AC", "+/-", "%", "÷",
-        "7", "8", "9", "×",
-        "4", "5", "6", "-",
-        "1", "2", "3", "+" ,
-        "0", ".", "√", "=",
+            "AC", "+/-", "%", "÷",
+            "7", "8", "9", "×",
+            "4", "5", "6", "-",
+            "1", "2", "3", "+",
+            "0", ".", "√", "=",
     };
-    String[] rightSymbols = {"÷","×", "-", "+", "="};
-    String[] topSymbols = {"AC", "+/-", "%"};
+    String[] rightSymbols = { "÷", "×", "-", "+", "=" };
+    String[] topSymbols = { "AC", "+/-", "%" };
 
     // Declare window and components
     JFrame frame = new JFrame("Calculator");
@@ -35,7 +35,7 @@ public class Calculator {
     Calculator() {
         // General window settings
         frame.setVisible(true);
-        frame.setSize(windowWidth,windowHeight);
+        frame.setSize(windowWidth, windowHeight);
         frame.setLocationRelativeTo(null); // Center the window on the screen
         frame.setResizable(false);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close when the window "close" button is pressed
@@ -56,7 +56,8 @@ public class Calculator {
         frame.add(displayPanel, BorderLayout.NORTH); // Put the panel inside the window (aligned to north/top)
 
         // Styling for buttonsPanel
-        buttonsPanel.setLayout(new GridLayout(5, 4)); // Set the layout of the panels for the buttons to have 5 rows and 4 cols
+        buttonsPanel.setLayout(new GridLayout(5, 4)); // Set the layout of the panels for the buttons to have 5 rows and
+                                                      // 4 cols
         buttonsPanel.setBackground(customBlack);
         frame.add(buttonsPanel); // Add the buttonsPanel to the window
 
@@ -65,9 +66,28 @@ public class Calculator {
             // Declare button and the value
             JButton button = new JButton();
             String buttonValue = buttonValues[i];
+
             // Stylize button
+            button.setOpaque(true);
             button.setFont(new Font("Arial", Font.PLAIN, 30));
             button.setText(buttonValue);
+            button.setFocusable(false);
+            button.setBorder(new LineBorder(customBlack, 1));
+
+            // Stylize topSymbols
+            if (Arrays.asList(topSymbols).contains(buttonValue)) {
+                button.setBackground(customLightGray);
+                button.setForeground(customBlack);
+            } // Stylize rightSymbols
+            else if (Arrays.asList(rightSymbols).contains(buttonValue)) {
+                button.setBackground(customOrange);
+                button.setForeground(Color.white);
+            } // Stylize digits
+            else {
+                button.setBackground(customDarkGray);
+                button.setForeground(Color.white);
+            }
+
             // Add button to buttonsPanel
             buttonsPanel.add(button);
         }
