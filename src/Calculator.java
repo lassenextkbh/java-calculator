@@ -90,6 +90,33 @@ public class Calculator {
 
             // Add button to buttonsPanel
             buttonsPanel.add(button);
+
+            // Add action listener so button is usable
+            button.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    JButton button = (JButton) e.getSource(); // e is the event and e.getSource() is the button clicked
+                    String buttonValue = button.getText(); // Get the value (operator) of the button pressed
+                    if (Arrays.asList(rightSymbols).contains(buttonValue)) {
+                        // Button from rightSymbols clicked
+
+                    } else if (Arrays.asList(topSymbols).contains(buttonValue)) {
+                        // Button from topSymbols clicked
+
+                    } else { // Digits or "."
+                        if (buttonValue == ".") {
+
+                        } else if ("0123456789".contains(buttonValue)) {
+                            if (displayLabel.getText() == "0") {
+                                // If the current text on the displayLabel is 0, replace it.
+                                displayLabel.setText(buttonValue);
+                            } else {
+                                // Otherwise append the value pressed.
+                                displayLabel.setText(displayLabel.getText() + buttonValue);
+                            }
+                        }
+                    }
+                }
+            });
         }
     }
 }
