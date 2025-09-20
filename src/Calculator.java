@@ -1,196 +1,249 @@
 import java.awt.*;
-import java.awt.event.*;
-import java.util.Arrays;
+import java.util.Set;
 import javax.swing.*;
 import javax.swing.border.LineBorder;
 
 public class Calculator {
-    // Declare the width and height of the window.
-    int windowWidth = 360;
-    int windowHeight = 540;
+    // UI Constants
+    private static final int WINDOW_WIDTH = 360;
+    private static final int WINDOW_HEIGHT = 540;
 
-    // Declare the colors used in the project
-    Color customLightGray = new Color(212, 212, 210);
-    Color customDarkGray = new Color(80, 80, 80);
-    Color customBlack = new Color(28, 28, 28);
-    Color customOrange = new Color(255, 149, 0);
+    // Colors
+    private static final Color LIGHT_GRAY = new Color(212, 212, 210);
+    private static final Color DARK_GRAY = new Color(80, 80, 80);
+    private static final Color BLACK = new Color(28, 28, 28);
+    private static final Color ORANGE = new Color(255, 149, 0);
 
-    // Declare the values for all the buttons
-    String[] buttonValues = {
+    // Button categories
+    private static final Set<String> OPERATORS = Set.of("/", "×", "-", "+", "=");
+    private static final Set<String> TOP_FUNCTIONS = Set.of("AC", "+/-", "%");
+    private static final Set<String> DIGITS = Set.of("0", "1", "2", "3", "4", "5", "6", "7", "8", "9");
+
+    private static final String[] BUTTON_LAYOUT = {
             "AC", "+/-", "%", "/",
             "7", "8", "9", "×",
             "4", "5", "6", "-",
             "1", "2", "3", "+",
-            "0", ".", "√", "=",
+            "0", ".", "√", "="
     };
-    String[] rightSymbols = { "/", "×", "-", "+", "=" };
-    String[] topSymbols = { "AC", "+/-", "%" };
 
-    // Declare window and components
-    JFrame frame = new JFrame("Calculator");
-    JLabel displayLabel = new JLabel();
-    JPanel displayPanel = new JPanel();
-    JPanel buttonsPanel = new JPanel();
+    // UI Components
+    private final JFrame frame;
+    private final JLabel displayLabel;
+    private final JPanel displayPanel;
+    private final JPanel buttonsPanel;
 
-    // Declare variables for keeping track of the two numbers and the operator (A+B,
-    // A-B, A*B, etc.)
-    String A = "0";
-    String operator = null;
-    String B = null;
+    // Calculator state
+    private String firstOperand = "0";
+    private String operator = null;
+    private String secondOperand = null;
 
-    Calculator() {
-        // General window settings
-        frame.setSize(windowWidth, windowHeight);
-        frame.setLocationRelativeTo(null); // Center the window on the screen
+    public Calculator() {
+        frame = new JFrame("Calculator");
+        displayLabel = new JLabel();
+        displayPanel = new JPanel();
+        buttonsPanel = new JPanel();
+
+        initializeUI();
+        createButtons();
+        frame.setVisible(true);
+    }
+
+    private void initializeUI() {
+        setupFrame();
+        setupDisplay();
+        setupButtonsPanel();
+    }
+
+    private void setupFrame() {
+        frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        frame.setLocationRelativeTo(null);
         frame.setResizable(false);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // Close when the window "close" button is pressed
-        frame.setLayout(new BorderLayout()); // Set up layout for the window
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+    }
 
-        // Styling for displayLabel
-        displayLabel.setBackground(customBlack);
-        displayLabel.setForeground(Color.white); // Text color: white
+    private void setupDisplay() {
+        displayLabel.setBackground(BLACK);
+        displayLabel.setForeground(Color.WHITE);
         displayLabel.setFont(new Font("Arial", Font.PLAIN, 80));
-        displayLabel.setHorizontalAlignment(JLabel.RIGHT); // Make the text align to the right
+        displayLabel.setHorizontalAlignment(JLabel.RIGHT);
         displayLabel.setText("0");
         displayLabel.setOpaque(true);
 
-        // Styling for displayPanel
-        displayPanel.setLayout(new BorderLayout()); // Set up the layout of the panel
-        displayPanel.add(displayLabel); // Put the text label inside the panel
+        displayPanel.setLayout(new BorderLayout());
+        displayPanel.add(displayLabel);
+        frame.add(displayPanel, BorderLayout.NORTH);
+    }
 
-        frame.add(displayPanel, BorderLayout.NORTH); // Put the panel inside the window (aligned to north/top)
+    private void setupButtonsPanel() {
+        buttonsPanel.setLayout(new GridLayout(5, 4));
+        buttonsPanel.setBackground(BLACK);
+        frame.add(buttonsPanel);
+    }
 
-        // Styling for buttonsPanel
-        buttonsPanel.setLayout(new GridLayout(5, 4)); // Set the layout of the panels for the buttons to have 5 rows and
-                                                      // 4 cols
-        buttonsPanel.setBackground(customBlack);
-        frame.add(buttonsPanel); // Add the buttonsPanel to the window
-
-        // Adding all the buttons to the buttonsPanel
-        for (int i = 0; i < buttonValues.length; i++) {
-            // Declare button and the value
-            JButton button = new JButton();
-            String buttonValue = buttonValues[i];
-
-            // Stylize button
-            button.setOpaque(true);
-            button.setFont(new Font("Arial", Font.PLAIN, 30));
-            button.setText(buttonValue);
-            button.setFocusable(false);
-            button.setBorder(new LineBorder(customBlack, 1));
-
-            // Stylize topSymbols
-            if (Arrays.asList(topSymbols).contains(buttonValue)) {
-                button.setBackground(customLightGray);
-                button.setForeground(customBlack);
-            } // Stylize rightSymbols
-            else if (Arrays.asList(rightSymbols).contains(buttonValue)) {
-                button.setBackground(customOrange);
-                button.setForeground(Color.white);
-            } // Stylize digits
-            else {
-                button.setBackground(customDarkGray);
-                button.setForeground(Color.white);
-            }
-
-            // Add button to buttonsPanel
+    private void createButtons() {
+        for (String buttonText : BUTTON_LAYOUT) {
+            JButton button = createStyledButton(buttonText);
+            button.addActionListener(e -> handleButtonClick(buttonText));
             buttonsPanel.add(button);
-
-            // Add action listener so button is usable
-            button.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    JButton button = (JButton) e.getSource(); // e is the event and e.getSource() is the button clicked
-                    String buttonValue = button.getText(); // Get the value (operator) of the button pressed
-                    if (Arrays.asList(rightSymbols).contains(buttonValue)) {
-                        // Button from rightSymbols clicked
-                        if (buttonValue == "=") {
-                            if (A != null) {
-                                // If A is set to a value, get B from the displayLabel
-                                B = displayLabel.getText();
-                                double numA = Double.parseDouble(A);
-                                double numB = Double.parseDouble(B);
-
-                                if (operator == "+") {
-                                    // If the opreator is "+" add A and B together and set the result to the display
-                                    displayLabel.setText(removeZeroDecimal(numA + numB));
-                                } else if (operator == "-") {
-                                    // If the opreator is "-" subtract B from A and set the result to the display
-                                    displayLabel.setText(removeZeroDecimal(numA - numB));
-                                } else if (operator == "×") {
-                                    // If the opreator is "*" multiply A by B and set the result to the display
-                                    displayLabel.setText(removeZeroDecimal(numA * numB));
-                                } else if (operator == "/") {
-                                    // If the opreator is "/" divide A by B and set the result to the display
-                                    displayLabel.setText(removeZeroDecimal(numA / numB));
-                                }
-                                clearAll();
-                            }
-                        } else if ("+-×/".contains(buttonValue)) {
-                            if (operator == null) {
-                                // If the operator button hasn't been pressed yet, save the number to A, reset
-                                // display and initialize B
-                                A = displayLabel.getText();
-                                displayLabel.setText("0");
-                                B = "0";
-                            }
-                            operator = buttonValue; // Set the operator to the clicked button
-                        }
-                    } else if (Arrays.asList(topSymbols).contains(buttonValue)) {
-                        // Button from topSymbols clicked
-                        if (buttonValue == "AC") {
-                            clearAll();
-                            displayLabel.setText("0");
-                        } else if (buttonValue == "+/-") {
-                            double numDisplay = Double.parseDouble(displayLabel.getText()); // Convert text to a double
-                            numDisplay *= -1; // Multiply it by -1 (flip +/- sign)
-                            displayLabel.setText(removeZeroDecimal(numDisplay));
-                        } else if (buttonValue == "%") {
-                            double numDisplay = Double.parseDouble(displayLabel.getText()); // Convert text to a double
-                            numDisplay /= 100; // Divide it by 100 (get %)
-                            displayLabel.setText(removeZeroDecimal(numDisplay));
-                        }
-                    } else { // Digits, "." or "√"
-                        if (buttonValue == ".") {
-                            if (!displayLabel.getText().contains(buttonValue)) {
-                                // If our current displayLabel doesen't contain "."
-                                displayLabel.setText(displayLabel.getText() + buttonValue);
-                            }
-                        } else if (buttonValue == "√") {
-                            double numDisplay = Double.parseDouble(displayLabel.getText()); // Convert text to a double
-                            numDisplay = Math.sqrt(numDisplay); // Find the square root of what's on the display.
-                            displayLabel.setText(removeZeroDecimal(numDisplay));
-
-                        } else if ("0123456789".contains(buttonValue)) {
-                            if (displayLabel.getText() == "0") {
-                                // If the current text on the displayLabel is 0, replace it.
-                                displayLabel.setText(buttonValue);
-                            } else {
-                                // Otherwise append the value pressed.
-                                displayLabel.setText(displayLabel.getText() + buttonValue);
-                            }
-                        }
-                    }
-                }
-            });
-            // Show the frame when everything has loaded.
-            frame.setVisible(true);
         }
     }
 
-    void clearAll() {
-        // Clear A and B and the operator
-        A = "0";
-        operator = null;
-        B = null;
-    }
+    private JButton createStyledButton(String text) {
+        JButton button = new JButton(text);
+        button.setOpaque(true);
+        button.setFont(new Font("Arial", Font.PLAIN, 30));
+        button.setFocusable(false);
+        button.setBorder(new LineBorder(BLACK, 1));
 
-    String removeZeroDecimal(double numDisplay) {
-        if (numDisplay % 1 == 0) {
-            // If numDisplay is a whole number
-            return Integer.toString((int) numDisplay);
+        // Apply styling based on button type
+        if (TOP_FUNCTIONS.contains(text)) {
+            button.setBackground(LIGHT_GRAY);
+            button.setForeground(BLACK);
+        } else if (OPERATORS.contains(text)) {
+            button.setBackground(ORANGE);
+            button.setForeground(Color.WHITE);
         } else {
-            // Otherwise just return it back
-            return Double.toString(numDisplay);
+            button.setBackground(DARK_GRAY);
+            button.setForeground(Color.WHITE);
         }
+
+        return button;
+    }
+
+    private void handleButtonClick(String buttonText) {
+        if (OPERATORS.contains(buttonText)) {
+            handleOperator(buttonText);
+        } else if (TOP_FUNCTIONS.contains(buttonText)) {
+            handleTopFunction(buttonText);
+        } else if (DIGITS.contains(buttonText)) {
+            handleDigit(buttonText);
+        } else if (".".equals(buttonText)) {
+            handleDecimalPoint();
+        } else if ("√".equals(buttonText)) {
+            handleSquareRoot();
+        }
+    }
+
+    private void handleOperator(String op) {
+        if ("=".equals(op)) {
+            calculateResult();
+        } else {
+            prepareForNextOperand();
+            operator = op;
+        }
+    }
+
+    private void handleTopFunction(String function) {
+        switch (function) {
+            case "AC":
+                clearAll();
+                displayLabel.setText("0");
+                break;
+            case "+/-":
+                toggleSign();
+                break;
+            case "%":
+                convertToPercentage();
+                break;
+        }
+    }
+
+    private void handleDigit(String digit) {
+        String currentDisplay = displayLabel.getText();
+        if ("0".equals(currentDisplay)) {
+            displayLabel.setText(digit);
+        } else {
+            displayLabel.setText(currentDisplay + digit);
+        }
+    }
+
+    private void handleDecimalPoint() {
+        String currentDisplay = displayLabel.getText();
+        if (!currentDisplay.contains(".")) {
+            displayLabel.setText(currentDisplay + ".");
+        }
+    }
+
+    private void handleSquareRoot() {
+        double value = Double.parseDouble(displayLabel.getText());
+        double result = Math.sqrt(value);
+        displayLabel.setText(formatResult(result));
+    }
+
+    private void calculateResult() {
+        if (firstOperand == null || operator == null) {
+            return;
+        }
+
+        secondOperand = displayLabel.getText();
+        double numA = Double.parseDouble(firstOperand);
+        double numB = Double.parseDouble(secondOperand);
+        double result;
+
+        switch (operator) {
+            case "+":
+                result = numA + numB;
+                break;
+            case "-":
+                result = numA - numB;
+                break;
+            case "×":
+                result = numA * numB;
+                break;
+            case "/":
+                if (numB == 0) {
+                    displayLabel.setText("Error");
+                    clearAll();
+                    return;
+                }
+                result = numA / numB;
+                break;
+            default:
+                return;
+        }
+
+        displayLabel.setText(formatResult(result));
+        clearAll();
+    }
+
+    private void prepareForNextOperand() {
+        if (operator == null) {
+            firstOperand = displayLabel.getText();
+            displayLabel.setText("0");
+            secondOperand = "0";
+        }
+    }
+
+    private void toggleSign() {
+        double value = Double.parseDouble(displayLabel.getText());
+        value *= -1;
+        displayLabel.setText(formatResult(value));
+    }
+
+    private void convertToPercentage() {
+        double value = Double.parseDouble(displayLabel.getText());
+        value /= 100;
+        displayLabel.setText(formatResult(value));
+    }
+
+    private void clearAll() {
+        firstOperand = "0";
+        operator = null;
+        secondOperand = null;
+    }
+
+    private String formatResult(double value) {
+        // Remove unnecessary decimal places for whole numbers
+        if (value == Math.floor(value) && !Double.isInfinite(value)) {
+            return String.valueOf((long) value);
+        } else {
+            return String.valueOf(value);
+        }
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new Calculator());
     }
 }
