@@ -37,5 +37,5 @@ A simple, modern calculator application built with Java and Swing. This project 
 ## Project Structure
 
 - `src/` - Java source files (`App.java`, `Calculator.java`)
-- `lib/` - Compiled class files
 - `README.md` - Project documentation
+
